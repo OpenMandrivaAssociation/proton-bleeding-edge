@@ -29,7 +29,7 @@
 Name:		proton-bleeding-edge
 Version:	10.0+20251114
 %define major %(echo %{version}|cut -d. -f1-2)
-Release:	1
+Release:	2
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/bleeding-edge.tar.gz#/proton-%{version}.tar.gz
 Summary:	Proton Experimental - runs MS Windows programs
 License:	LGPLv2+
@@ -402,9 +402,8 @@ export LDFLAGS="$(echo %{build_ldflags} |sed -e 's,-m64,,g;s,-mx32,,g')"
 export CFLAGS="${CFLAGS} -fno-omit-frame-pointer"
 %endif
 
-%if 0
-#arch %{x86_64}
-# As of wine 5.6, clang 10.0:
+%ifarch %{x86_64}
+# As of proton-bleeding-edge 10.0+20251117, clang 21.1:
 # winecfg in 64bit mode crashes on startup if built with
 # clang. Probably clang doesn't get the M$ ABI right
 export CC=gcc
