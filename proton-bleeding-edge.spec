@@ -313,6 +313,7 @@ BuildRequires:	%{mklibname -d vosk}
 BuildRequires:	%{mklibname -d fst}
 BuildRequires:	cmake(kaldi)
 Recommends:	direct3d-implementation
+Recommends:	direct3d12-implementation
 
 %patchlist
 proton-vulkan-libm-linkage.patch
@@ -345,12 +346,12 @@ develop programs which make use of wine.
 Wine is often updated.
 
 %package direct3d
-Summary:       The Direct3D implementation from the Wine project
+Summary:       The Direct3D implementation from the Proton Bleeding Edge project
 Group:         Emulators
 Provides:      direct3d-implementation
 
 %description direct3d
-The Direct3D implementation from the Wine project
+The Direct3D implementation from the Proton Bleeding Edge project
 
 Direct3D is a Windows 3D acceleration library used by many games
 and applications.
@@ -361,6 +362,26 @@ wine-direct3d is the original implementation from Wine
 proton-direct3d is the implementation from Proton
 proton-bleeding-edge-direct3d is the implementation from Proton-bleeding-edge
 dxvk is a reimplementation on top of Vulkan rather than OpenGL
+
+%package direct3d12
+Summary:	The Direct3D 12 implementation from the Proton Bleeding Edge project
+Group:		Emulators
+Provides:	direct3d12-implementation
+# For dxgi
+Requires:	direct3d-implementation
+
+%description direct3d12
+The Direct3D 12 implementation from the Proton Bleeding Edge project
+
+Direct3D 12 is a Windows 3D acceleration library used by many games
+and applications.
+
+This is one of several alternative implementations of this interface.
+
+wine-direct3d12 is the original implementation from Wine
+proton-direct3d12 is the implementation from Proton
+proton-bleeding-edge-direct3d12 is the implementation from Proton-bleeding-edge
+vkd3d-proton is a reimplementation on top of Vulkan rather than OpenGL
 
 %prep
 %autosetup -p1 -n wine-bleeding-edge
@@ -670,6 +691,8 @@ done
 %exclude %{_libdir}/wine/*/d3d9.dll
 %exclude %{_libdir}/wine/*/d3d10core.dll
 %exclude %{_libdir}/wine/*/d3d11.dll
+%exclude %{_libdir}/wine/*/d3d12core.dll
+%exclude %{_libdir}/wine/*/d3d12.dll
 %exclude %{_libdir}/wine/*/dxgi.dll
 %if %{with wow64}
 %dir %{_prefix}/lib/wine
@@ -697,6 +720,8 @@ done
 %exclude %{_prefix}/lib/wine/*/d3d9.dll
 %exclude %{_prefix}/lib/wine/*/d3d10core.dll
 %exclude %{_prefix}/lib/wine/*/d3d11.dll
+%exclude %{_prefix}/lib/wine/*/d3d12core.dll
+%exclude %{_prefix}/lib/wine/*/d3d12.dll
 %exclude %{_prefix}/lib/wine/*/dxgi.dll
 %endif
 
@@ -713,6 +738,14 @@ done
 %{_libdir}/wine/*/d3d10core.dll
 %{_libdir}/wine/*/d3d11.dll
 %{_libdir}/wine/*/dxgi.dll
+
+%files direct3d12
+%if %{with wow64}
+%{_prefix}/lib/wine/*/d3d12core.dll
+%{_prefix}/lib/wine/*/d3d12.dll
+%endif
+%{_libdir}/wine/*/d3d12core.dll
+%{_libdir}/wine/*/d3d12.dll
 
 %files devel
 %{_libdir}/wine/*/*.a
