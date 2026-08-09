@@ -15,53 +15,50 @@
 %define _fortify_cflags %{nil}
 %define _ssp_cflags %{nil}
 
-%ifarch %{x86_64}
-%bcond_without wow64
-%else
-%bcond_with wow64
-%endif
-
 %define major 1
 %define devname %{mklibname -d wine}
 
 %bcond_with rebuild_unicode
 
 Name:		proton-bleeding-edge
-Version:	10.0+20251114
-%define major %(echo %{version}|cut -d. -f1-2)
-Release:	2
+Version:	11.0+20260809
+%define major %(echo %{version}|cut -d+ -f1)
+Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/bleeding-edge.tar.gz#/proton-%{version}.tar.gz
-Summary:	Proton Experimental - runs MS Windows programs
+Summary:	Proton Bleeding Edge - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
 URL:		https://www.winehq.com/
 
 Source2:	wine.binfmt
 
-%define vk_version 1.4.318
-Source10:       https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/vk.xml
-Source11:       https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/video.xml
+%define vk_version 1.4.357
+Source10:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/vk.xml
+Source11:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/video.xml
 
 %ifarch %{x86_64}
-# Wine needs GCC 4.4+ on x86_64 for MS ABI support.
-BuildRequires:	gcc >= 4.4
+# Wine needs GCC on x86_64 for MS ABI support. Require the actual
+# binaries — a virtual "gcc" provide can be satisfied without /usr/bin/gcc.
+BuildRequires:	/usr/bin/gcc
+BuildRequires:	/usr/bin/g++
+BuildRequires:	binutils
 %endif
 
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	gpm-devel
 BuildRequires:	perl-devel
-BuildRequires:	%mklibname -d piper2024
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(OpenCL)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(ncursesw)
-BuildRequires:	pkgconfig(libclc)
 BuildRequires:	cups-devel
 BuildRequires:	pkgconfig(sane-backends)
 BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	slibtool
 BuildRequires:	docbook-utils
 BuildRequires:	docbook-dtd-sgml
 BuildRequires:	docbook-utils
@@ -104,9 +101,12 @@ BuildRequires:	gsm-devel
 BuildRequires:	unixODBC-devel
 BuildRequires:	pkgconfig(gnutls)
 BuildRequires:	gettext-devel
+BuildRequires:	%mklibname -d piper2024
+BuildRequires:	%mklibname -d vosk
 BuildRequires:	pkgconfig(lcms2)
 BuildRequires:	pkgconfig(osmesa)
 BuildRequires:	pkgconfig(libglvnd)
+BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	pkgconfig(glu)
 BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	ieee1284-devel
@@ -139,127 +139,6 @@ BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(sdl2)
 BuildRequires:	cmake(FAudio)
 
-%if %{with wow64}
-# This is ugly, but it has to be until and unless we fix multiarch support
-# in general.
-# We need to pull in 32-bit libraries, but can't install the corresponding
-# -devel packages because the headers would conflict with the 64bit headers.
-# Given the headers are the same anyway, we can just create fake devel
-# environments by symlinking .so files and reusing system (64bit) includes.
-BuildRequires:	devel(libSDL2-2.0)
-BuildRequires:	devel(libOpenCL)
-BuildRequires:	devel(libncurses)
-BuildRequires:	devel(libncursesw)
-BuildRequires:	devel(libcups)
-BuildRequires:	devel(libdrm)
-BuildRequires:	devel(libsane)
-BuildRequires:	devel(libsystemd)
-BuildRequires:	devel(libz)
-BuildRequires:	devel(libbz2)
-BuildRequires:	devel(libjack)
-BuildRequires:	devel(libpulse)
-BuildRequires:	devel(libmpg123)
-BuildRequires:	devel(libopenal)
-BuildRequires:	devel(libasound)
-BuildRequires:	devel(libaudiofile)
-BuildRequires:	devel(libglut)
-BuildRequires:	devel(libpng16)
-BuildRequires:	devel(libusb-1.0)
-BuildRequires:	devel(libxml2)
-BuildRequires:	devel(libxslt)
-BuildRequires:	devel(libcapi20)
-BuildRequires:	devel(libgif)
-BuildRequires:	devel(libtiff)
-BuildRequires:	devel(libXpm)
-BuildRequires:	devel(librsvg-2)
-BuildRequires:	devel(libgphoto2)
-BuildRequires:	devel(libgphoto2_port)
-BuildRequires:	devel(liblber)
-BuildRequires:	devel(libldap)
-BuildRequires:	devel(libdbus-1)
-BuildRequires:	devel(libgsm)
-BuildRequires:	devel(libodbc)
-BuildRequires:	devel(libgnutls)
-BuildRequires:	devel(liblcms2)
-BuildRequires:	devel(libOSMesa)
-BuildRequires:	devel(libGL)
-BuildRequires:	devel(libGLU)
-BuildRequires:	devel(libv4l2)
-BuildRequires:	devel(libieee1284)
-BuildRequires:	devel(libjpeg)
-BuildRequires:	devel(libjpegxr)
-BuildRequires:	devel(libXcursor)
-BuildRequires:	devel(libXcomposite)
-BuildRequires:	devel(libXfixes)
-BuildRequires:	devel(libXi)
-BuildRequires:	devel(libXinerama)
-BuildRequires:	devel(libXxf86vm)
-BuildRequires:	devel(libXmu)
-BuildRequires:	devel(libXrandr)
-BuildRequires:	devel(libX11)
-BuildRequires:	devel(libXrender)
-BuildRequires:	devel(libXext)
-BuildRequires:	devel(libSM)
-BuildRequires:	libvulkan-devel
-BuildRequires:	devel(libvkd3d)
-BuildRequires:	devel(libfontconfig)
-BuildRequires:	devel(libfreetype)
-BuildRequires:	devel(libgstreamer-1.0)
-BuildRequires:	devel(libgstvideo-1.0)
-BuildRequires:	devel(libgstaudio-1.0)
-BuildRequires:	devel(libgstbase-1.0)
-BuildRequires:	devel(libva)
-BuildRequires:	devel(libva-x11)
-BuildRequires:	devel(libva-drm)
-BuildRequires:	devel(libavcodec)
-BuildRequires:	devel(libudev)
-BuildRequires:	devel(libFAudio)
-BuildRequires:	devel(libpcap)
-BuildRequires:	devel(libkrb5)
-BuildRequires:	devel(libk5crypto)
-BuildRequires:	devel(libcom_err)
-BuildRequires:	devel(libgcrypt)
-BuildRequires:	devel(libgpg-error)
-BuildRequires:	devel(libgtk-3)
-BuildRequires:	devel(libgdk-3)
-BuildRequires:	devel(libpangocairo-1.0)
-BuildRequires:	devel(libpango-1.0)
-BuildRequires:	devel(libharfbuzz)
-BuildRequires:	devel(libatk-1.0)
-BuildRequires:	devel(libatk-bridge-2.0)
-BuildRequires:	devel(libatspi)
-BuildRequires:	devel(libcairo-gobject)
-BuildRequires:	devel(libcairo)
-BuildRequires:	devel(libgdk_pixbuf-2.0)
-BuildRequires:	devel(libgio-2.0)
-BuildRequires:	devel(libgobject-2.0)
-BuildRequires:	devel(libglib-2.0)
-BuildRequires:	devel(liborc-0.4)
-BuildRequires:	libunwind-nongnu-devel
-BuildRequires:	devel(libelf)
-BuildRequires:	devel(libdw)
-BuildRequires:	devel(liblzma)
-BuildRequires:	devel(libpcre)
-BuildRequires:	devel(libffi)
-BuildRequires:	devel(libepoxy)
-BuildRequires:	devel(libfribidi)
-BuildRequires:	devel(libpangoft2-1.0)
-BuildRequires:	devel(libuuid)
-BuildRequires:	devel(libblkid)
-BuildRequires:	devel(libmount)
-BuildRequires:	devel(libpixman-1)
-BuildRequires:	devel(libexpat)
-BuildRequires:	devel(libxcb)
-BuildRequires:	devel(libXft)
-BuildRequires:	devel(libxcb-render)
-BuildRequires:	devel(libxcb-shm)
-BuildRequires:	devel(libxkbcommon)
-BuildRequires:	devel(libxkbregistry)
-BuildRequires:	devel(libXau)
-BuildRequires:	devel(libXdmcp)
-BuildRequires:	devel(libXdamage)
-BuildRequires:	devel(libwayland-client)
-%endif
 %if %{with rebuild_unicode}
 BuildRequires:	perl(XML::LibXML)
 %endif
@@ -295,11 +174,8 @@ Requires:	libdri-drivers
 # to use distribution packages instead. Therefore suggest wine-gecko here:
 Suggests:	wine-gecko
 Suggests:	%{dlopen_req ncursesw}
-%if %{with wow64}
-%rename		wine32
-%rename		wine64
-%endif
 %ifarch %{ix86} %{x86_64}
+BuildRequires:	mingw
 BuildRequires:	cross-i686-w64-mingw32-binutils >= 2.38-2
 BuildRequires:	cross-i686-w64-mingw32-gcc-bootstrap
 BuildRequires:	cross-i686-w64-mingw32-libc
@@ -309,9 +185,6 @@ BuildRequires:	cross-x86_64-w64-mingw32-gcc-bootstrap
 BuildRequires:	cross-x86_64-w64-mingw32-libc
 %endif
 %endif
-BuildRequires:	%{mklibname -d vosk}
-BuildRequires:	%{mklibname -d fst}
-BuildRequires:	cmake(kaldi)
 Recommends:	direct3d-implementation
 Recommends:	direct3d12-implementation
 
@@ -319,7 +192,12 @@ Recommends:	direct3d12-implementation
 proton-vulkan-libm-linkage.patch
 proton-9.0-compile.patch
 proton-10.0-ffmpeg-8.0.patch
-proton-be-compile.patch
+proton-11.0-clang-asm-jmp.patch
+proton-11.0-arm-exception-dir-size.patch
+proton-11.0-makedep-compiler-rt.patch
+proton-11.0-compiler-rt-chkstk.patch
+proton-11.0-mscorwks-register.patch
+proton-11.0-sqlite3-arm-barrier.patch
 
 %description
 Wine is a program which allows running Microsoft Windows programs
@@ -346,9 +224,11 @@ develop programs which make use of wine.
 Wine is often updated.
 
 %package direct3d
-Summary:       The Direct3D implementation from the Proton Bleeding Edge project
-Group:         Emulators
-Provides:      direct3d-implementation
+Summary:	The Direct3D implementation from the Proton Bleeding Edge project
+Group:		Emulators
+Provides:	direct3d-implementation
+Conflicts:	dxvk
+Conflicts:	wine-direct3d
 
 %description direct3d
 The Direct3D implementation from the Proton Bleeding Edge project
@@ -367,7 +247,8 @@ dxvk is a reimplementation on top of Vulkan rather than OpenGL
 Summary:	The Direct3D 12 implementation from the Proton Bleeding Edge project
 Group:		Emulators
 Provides:	direct3d12-implementation
-# For dxgi
+Conflicts:	vkd3d-proton
+Conflicts:	wine-direct3d12
 Requires:	direct3d-implementation
 
 %description direct3d12
@@ -391,7 +272,7 @@ VK_VERSION=$(grep ^VK_XML_VERSION make_vulkan |cut -d'"' -f2)
 if [ "$VK_VERSION" != "%{vk_version}" ]; then
 	echo "Update the Vulkan XML files to $VK_VERSION"
 	exit 1
-fi    
+fi
 export XDG_CACHE_HOME=$(pwd)/xdgcache
 mkdir -p xdgcache/wine
 cp %{S:10} xdgcache/wine/vk-%{vk_version}.xml
@@ -435,63 +316,27 @@ export CONFIGURE_TOP=$(pwd)
 mkdir build
 cd build
 %configure \
-%ifarch %{x86_64}
-	--enable-win64 \
-%endif
-	--with-pulse \
-	--with-gstreamer
-
-if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4)'; then
-	echo "Full config.log:"
-	cat config.log
-	echo "******************************"
-	echo "Missing dependencies detected:"
-	echo "(Only missing OSSv4 is OK):"
-	echo "******************************"
-	cat config.log |grep "won't be supported"
-	exit 1
-fi
-
-%make_build depend
-%make_build
-
-%if %{with wow64}
-cd ..
-
-mkdir build32
-cd build32
-if ! PKG_CONFIG_LIBDIR="%{_prefix}/lib/pkgconfig:%{_datadir}/pkgconfig" \
-PKG_CONFIG_PATH="%{_prefix}/lib/pkgconfig:%{_datadir}/pkgconfig" \
-../configure \
-	--prefix=%{_prefix} \
+	--enable-archs=i386,x86_64,arm,aarch64 \
+	--with-mingw=clang \
 	--with-pulse \
 	--with-gstreamer \
-	--with-wine64=../build; then
-	echo "32-bit configure failed. Full config.log:"
-	cat config.log
-fi
-if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|netapi|pcsclite|piper|vosk)'; then
+	|| { echo "configure failed. Full config.log:"; cat config.log; exit 1; }
+
+if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|capi20)'; then
 	echo "Full config.log:"
 	cat config.log
-	echo "***********************************************************"
-	echo "Missing 32-bit dependencies detected:"
-	echo "(Only missing OSSv4, netapi, pcsclite, piper, vosk are OK):"
-	echo "***********************************************************"
+	echo "***************************************"
+	echo "Missing dependencies detected:"
+	echo "(Only missing OSSv4 and capi20 are OK):"
+	echo "***************************************"
 	cat config.log |grep "won't be supported"
 	exit 1
 fi
+
 %make_build depend
 %make_build
-%endif
-
 
 %install
-%if %{with wow64}
-cd build32
-%make_install LDCONFIG=/bin/true
-cd ..
-%endif
-
 cd build
 %make_install LDCONFIG=/bin/true
 cd ..
@@ -596,22 +441,18 @@ sed -i 's,Icon=%{name},Icon=regedit,' %{buildroot}%{_datadir}/applications/mandr
 sed -i 's,Icon=%{name},Icon=winemine,' %{buildroot}%{_datadir}/applications/mandriva-%{name}-winemine.desktop
 sed -i 's,Icon=%{name},Icon=msiexec,' "%{buildroot}%{_datadir}/applications/mandriva-%{name}-wine uninstaller.desktop"
 
-for i in %{buildroot}%{_bindir}/* %{buildroot}%{_libdir}/wine/*.so %{buildroot}%{_prefix}/lib/wine/*.so; do
+for i in %{buildroot}%{_bindir}/* %{buildroot}%{_libdir}/wine/*/*.so; do
 	chrpath -d $i || :
 done
 
 %files
 %doc ANNOUNCE.md AUTHORS README.md
+%{_bindir}/wine
+%{_libdir}/wine/*/wine
+%{_libdir}/wine/*/wine-preloader
 %ifarch %{x86_64}
-%{_bindir}/wine64
-%{_bindir}/wine64-preloader
-%if %{with wow64}
-%{_bindir}/wine
-%{_bindir}/wine-preloader
-%endif
-%else
-%{_bindir}/wine
-%{_bindir}/wine-preloader
+%{_libdir}/wine/*/wine64
+%{_libdir}/wine/*/wine64-preloader
 %endif
 %config %{_binfmtdir}/wine.conf
 %{_bindir}/winecfg
@@ -657,6 +498,7 @@ done
 %{_datadir}/wine/nls/normnfkc.nls
 %{_datadir}/wine/nls/normnfkd.nls
 %{_datadir}/wine/nls/sortdefault.nls
+%{_datadir}/wine/winmd
 %{_datadir}/applications/*.desktop
 %{_sysconfdir}/xdg/menus/applications-merged/mandriva-%{name}.menu
 %{_datadir}/desktop-directories/mandriva-%{name}.directory
@@ -668,90 +510,128 @@ done
 %dir %{_libdir}/wine
 %ifarch %{x86_64}
 %dir %{_libdir}/wine/x86_64-unix
-%dir %{_libdir}/wine/x86_64-windows
+%{_libdir}/wine/x86_64-unix/*.so
 %endif
 %ifarch %{aarch64}
 %dir %{_libdir}/wine/aarch64-unix
+%{_libdir}/wine/aarch64-unix/*.so
+%endif
+# PE modules for every --enable-archs target (host unix libs are above)
+%dir %{_libdir}/wine/x86_64-windows
+%{_libdir}/wine/x86_64-windows/*.acm
+%{_libdir}/wine/x86_64-windows/*.ax
+%{_libdir}/wine/x86_64-windows/*.com
+%{_libdir}/wine/x86_64-windows/*.cpl
+%{_libdir}/wine/x86_64-windows/*.dll
+%{_libdir}/wine/x86_64-windows/*.drv
+%{_libdir}/wine/x86_64-windows/*.ds
+%{_libdir}/wine/x86_64-windows/*.exe
+%{_libdir}/wine/x86_64-windows/*.ocx
+%{_libdir}/wine/x86_64-windows/*.sys
+%{_libdir}/wine/x86_64-windows/*.tlb
+%{_libdir}/wine/x86_64-windows/*.msstyles
+%exclude %{_libdir}/wine/x86_64-windows/d3d8.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d9.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d10core.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d11.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d12core.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d12.dll
+%exclude %{_libdir}/wine/x86_64-windows/dxgi.dll
 %dir %{_libdir}/wine/aarch64-windows
-%endif
-%{_libdir}/wine/*/*.so
-%{_libdir}/wine/*/*.acm
-%{_libdir}/wine/*/*.ax
-%{_libdir}/wine/*/*.com
-%{_libdir}/wine/*/*.cpl
-%{_libdir}/wine/*/*.dll
-%{_libdir}/wine/*/*.drv
-%{_libdir}/wine/*/*.ds
-%{_libdir}/wine/*/*.exe
-%{_libdir}/wine/*/*.ocx
-%{_libdir}/wine/*/*.sys
-%{_libdir}/wine/*/*.tlb
-%{_libdir}/wine/*/*.msstyles
-%exclude %{_libdir}/wine/*/d3d8.dll
-%exclude %{_libdir}/wine/*/d3d9.dll
-%exclude %{_libdir}/wine/*/d3d10core.dll
-%exclude %{_libdir}/wine/*/d3d11.dll
-%exclude %{_libdir}/wine/*/d3d12core.dll
-%exclude %{_libdir}/wine/*/d3d12.dll
-%exclude %{_libdir}/wine/*/dxgi.dll
-%if %{with wow64}
-%dir %{_prefix}/lib/wine
-%dir %{_prefix}/lib/wine/i386-unix
-%dir %{_prefix}/lib/wine/i386-windows
-%{_prefix}/lib/wine/*/*.so
-%{_prefix}/lib/wine/*/*.acm
-%{_prefix}/lib/wine/*/*.ax
-%{_prefix}/lib/wine/*/*.com
-%{_prefix}/lib/wine/*/*.cpl
-%{_prefix}/lib/wine/*/*.dll
-%{_prefix}/lib/wine/*/*.drv
-%{_prefix}/lib/wine/*/*.ds
-%{_prefix}/lib/wine/*/*.exe
-%{_prefix}/lib/wine/*/*.msstyles
-%{_prefix}/lib/wine/*/*.ocx
-%{_prefix}/lib/wine/*/*.sys
-%{_prefix}/lib/wine/*/*.tlb
-%{_prefix}/lib/wine/*/*.vxd
-%{_prefix}/lib/wine/*/*.dll16
-%{_prefix}/lib/wine/*/*.exe16
-%{_prefix}/lib/wine/*/*.drv16
-%{_prefix}/lib/wine/*/*.mod16
-%exclude %{_prefix}/lib/wine/*/d3d8.dll
-%exclude %{_prefix}/lib/wine/*/d3d9.dll
-%exclude %{_prefix}/lib/wine/*/d3d10core.dll
-%exclude %{_prefix}/lib/wine/*/d3d11.dll
-%exclude %{_prefix}/lib/wine/*/d3d12core.dll
-%exclude %{_prefix}/lib/wine/*/d3d12.dll
-%exclude %{_prefix}/lib/wine/*/dxgi.dll
-%endif
+%{_libdir}/wine/aarch64-windows/*.acm
+%{_libdir}/wine/aarch64-windows/*.ax
+%{_libdir}/wine/aarch64-windows/*.com
+%{_libdir}/wine/aarch64-windows/*.cpl
+%{_libdir}/wine/aarch64-windows/*.dll
+%{_libdir}/wine/aarch64-windows/*.drv
+%{_libdir}/wine/aarch64-windows/*.ds
+%{_libdir}/wine/aarch64-windows/*.exe
+%{_libdir}/wine/aarch64-windows/*.ocx
+%{_libdir}/wine/aarch64-windows/*.sys
+%{_libdir}/wine/aarch64-windows/*.tlb
+%{_libdir}/wine/aarch64-windows/*.msstyles
+%exclude %{_libdir}/wine/aarch64-windows/d3d8.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d9.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d10core.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d11.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d12core.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d12.dll
+%exclude %{_libdir}/wine/aarch64-windows/dxgi.dll
+%dir %{_libdir}/wine/arm-windows
+%{_libdir}/wine/arm-*/*.acm
+%{_libdir}/wine/arm-*/*.ax
+%{_libdir}/wine/arm-*/*.com
+%{_libdir}/wine/arm-*/*.cpl
+%{_libdir}/wine/arm-*/*.dll
+%{_libdir}/wine/arm-*/*.drv
+%{_libdir}/wine/arm-*/*.ds
+%{_libdir}/wine/arm-*/*.exe
+%{_libdir}/wine/arm-*/*.ocx
+%{_libdir}/wine/arm-*/*.sys
+%{_libdir}/wine/arm-*/*.tlb
+%{_libdir}/wine/arm-*/*.msstyles
+%exclude %{_libdir}/wine/arm-*/d3d8.dll
+%exclude %{_libdir}/wine/arm-*/d3d9.dll
+%exclude %{_libdir}/wine/arm-*/d3d10core.dll
+%exclude %{_libdir}/wine/arm-*/d3d11.dll
+%exclude %{_libdir}/wine/arm-*/d3d12core.dll
+%exclude %{_libdir}/wine/arm-*/d3d12.dll
+%exclude %{_libdir}/wine/arm-*/dxgi.dll
+%dir %{_libdir}/wine/i386-windows
+# i386 PE (multiarch; no separate 32-bit unix libs with PE multiarch)
+%{_libdir}/wine/i386-*/*.acm
+%{_libdir}/wine/i386-*/*.ax
+%{_libdir}/wine/i386-*/*.com
+%{_libdir}/wine/i386-*/*.cpl
+%{_libdir}/wine/i386-*/*.dll
+%{_libdir}/wine/i386-*/*.drv
+%{_libdir}/wine/i386-*/*.ds
+%{_libdir}/wine/i386-*/*.exe
+%{_libdir}/wine/i386-*/*.msstyles
+%{_libdir}/wine/i386-*/*.ocx
+%{_libdir}/wine/i386-*/*.sys
+%{_libdir}/wine/i386-*/*.tlb
+%{_libdir}/wine/i386-*/*.vxd
+%{_libdir}/wine/i386-*/*.dll16
+%{_libdir}/wine/i386-*/*.exe16
+%{_libdir}/wine/i386-*/*.drv16
+%{_libdir}/wine/i386-*/*.mod16
+%exclude %{_libdir}/wine/i386-*/d3d8.dll
+%exclude %{_libdir}/wine/i386-*/d3d9.dll
+%exclude %{_libdir}/wine/i386-*/d3d10core.dll
+%exclude %{_libdir}/wine/i386-*/d3d11.dll
+%exclude %{_libdir}/wine/i386-*/d3d12core.dll
+%exclude %{_libdir}/wine/i386-*/d3d12.dll
+%exclude %{_libdir}/wine/i386-*/dxgi.dll
 
 %files direct3d
-%if %{with wow64}
-%{_prefix}/lib/wine/*/d3d8.dll
-%{_prefix}/lib/wine/*/d3d9.dll
-%{_prefix}/lib/wine/*/d3d10core.dll
-%{_prefix}/lib/wine/*/d3d11.dll
-%{_prefix}/lib/wine/*/dxgi.dll
-%endif
-%{_libdir}/wine/*/d3d8.dll
-%{_libdir}/wine/*/d3d9.dll
-%{_libdir}/wine/*/d3d10core.dll
-%{_libdir}/wine/*/d3d11.dll
-%{_libdir}/wine/*/dxgi.dll
+%{_libdir}/wine/aarch64-*/d3d8.dll
+%{_libdir}/wine/aarch64-*/d3d9.dll
+%{_libdir}/wine/aarch64-*/d3d10core.dll
+%{_libdir}/wine/aarch64-*/d3d11.dll
+%{_libdir}/wine/aarch64-*/dxgi.dll
+%{_libdir}/wine/arm-*/d3d8.dll
+%{_libdir}/wine/arm-*/d3d9.dll
+%{_libdir}/wine/arm-*/d3d10core.dll
+%{_libdir}/wine/arm-*/d3d11.dll
+%{_libdir}/wine/arm-*/dxgi.dll
+%{_libdir}/wine/x86_64-*/d3d8.dll
+%{_libdir}/wine/x86_64-*/d3d9.dll
+%{_libdir}/wine/x86_64-*/d3d10core.dll
+%{_libdir}/wine/x86_64-*/d3d11.dll
+%{_libdir}/wine/x86_64-*/dxgi.dll
+%{_libdir}/wine/i386-*/d3d8.dll
+%{_libdir}/wine/i386-*/d3d9.dll
+%{_libdir}/wine/i386-*/d3d10core.dll
+%{_libdir}/wine/i386-*/d3d11.dll
+%{_libdir}/wine/i386-*/dxgi.dll
 
 %files direct3d12
-%if %{with wow64}
-%{_prefix}/lib/wine/*/d3d12core.dll
-%{_prefix}/lib/wine/*/d3d12.dll
-%endif
-%{_libdir}/wine/*/d3d12core.dll
-%{_libdir}/wine/*/d3d12.dll
+%{_libdir}/wine/*-*/d3d12core.dll
+%{_libdir}/wine/*-*/d3d12.dll
 
 %files devel
 %{_libdir}/wine/*/*.a
-%ifarch %{x86_64}
-%{_prefix}/lib/wine/*/*.a
-%endif
 %{_includedir}/*
 # %{_bindir}/fnt2bdf
 %{_bindir}/wmc
