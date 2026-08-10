@@ -42,6 +42,8 @@ Source11:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_versi
 BuildRequires:	/usr/bin/gcc
 BuildRequires:	/usr/bin/g++
 BuildRequires:	binutils
+# gcc 16 specs always pass -latomic_asneeded
+BuildRequires:	%{mklibname -d atomic}
 %endif
 
 BuildRequires:	bison
