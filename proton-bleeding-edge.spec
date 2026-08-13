@@ -23,7 +23,7 @@
 Name:		proton-bleeding-edge
 Version:	11.0+20260809
 %define major %(echo %{version}|cut -d+ -f1)
-Release:	1
+Release:	2
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/bleeding-edge.tar.gz#/proton-%{version}.tar.gz
 Summary:	Proton Bleeding Edge - runs MS Windows programs
 License:	LGPLv2+
