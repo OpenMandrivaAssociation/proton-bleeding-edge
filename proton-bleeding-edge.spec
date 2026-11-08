@@ -21,9 +21,9 @@
 %bcond_with rebuild_unicode
 
 Name:		proton-bleeding-edge
-Version:	11.0+20260809
+Version:	11.0+20261108
 %define major %(echo %{version}|cut -d+ -f1)
-Release:	2
+Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/bleeding-edge.tar.gz#/proton-%{version}.tar.gz
 Summary:	Proton Bleeding Edge - runs MS Windows programs
 License:	LGPLv2+
@@ -194,7 +194,6 @@ Recommends:	direct3d12-implementation
 proton-vulkan-libm-linkage.patch
 proton-9.0-compile.patch
 proton-10.0-ffmpeg-8.0.patch
-proton-11.0-clang-asm-jmp.patch
 proton-11.0-arm-exception-dir-size.patch
 proton-11.0-makedep-compiler-rt.patch
 proton-11.0-compiler-rt-chkstk.patch
